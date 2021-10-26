@@ -1,3 +1,4 @@
+//IMPORT
 const express = require("express");
 const multer = require("multer");
 const morgan = require("morgan");
@@ -12,9 +13,10 @@ dotenv.config({
   path: "./config.env",
 });
 
-app.use(express.json()); //parsing json
-app.use(express.urlencoded({ extended: true })); //parsing form urlencoded
-app.use(multer().array()); //parsing form multipart
+//CONFIG + MIDDLEWARE
+app.use(express.json()); //parsing application/json
+app.use(express.urlencoded({ extended: true })); //parsing application/xwww-form-urlencoded
+app.use(multer().array()); //parsing multipart/form-data
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
