@@ -20,7 +20,36 @@ module.exports.createTour = async (req, res, next) => {
 
 module.exports.getAllTours = async (req, res, next) => {
   try {
-    const tours = await Tour.find();
+    //Basic filter
+    const queryObj = { ...req.query };
+    const excludeQuery = ["page", "sort", "limit", "fields"];
+    excludeQuery.forEach((e) => delete queryObj[e]);
+
+    //Advance filter
+    let queryStr = JSON.stringify(queryObj);
+    //replace lt => $lt
+    queryStr = JSON.parse(
+      queryStr.replace(/\b(lt|gt|gte|lte)\b/g, (match) => `$${match}`)
+    );
+
+    //Sort
+    let query = Tour.find(queryStr);
+    if (req.query.sort) {
+      const sortQuery = req.query.sort.split(",").join(" ");
+      query = query.sort(sortQuery);
+    } else {
+      query = query.sort("-createdAt");
+    }
+
+    // Fields limit
+    if (req.query.fields) {
+      const selectQuery = req.query.fields.split(",").join(" ");
+      query = query.select(selectQuery);
+    } else {
+      query = query.select("-__v");
+    }
+
+    const tours = await query;
     res.status(200).json({
       status: "success",
       results: tours.length,
