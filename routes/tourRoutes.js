@@ -8,6 +8,13 @@ router.post("/", tourController.createTour);
 // [GET] /api/v1/tours
 router.get("/", tourController.getAllTours);
 
+// [GET] /api/v1/tours/top-5-cheap
+router.get(
+  "/top-5-cheap",
+  tourController.getTopTours,
+  tourController.getAllTours
+);
+
 // [GET] /api/v1/tours/:id
 router.get("/:id", tourController.getTour);
 
