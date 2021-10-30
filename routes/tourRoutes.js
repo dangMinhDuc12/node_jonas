@@ -5,6 +5,12 @@ const tourController = require("../controllers/tourController");
 // [POST] /api/v1/tours
 router.post("/", tourController.createTour);
 
+// [GET] /api/v1/tours/monthly-plan/2021
+router.get("/monthly-plan/:year", tourController.getMonthlyPlan);
+
+// [GET] /api/v1/tours/tour-stats
+router.get("/tour-stats", tourController.getTourStats);
+
 // [GET] /api/v1/tours
 router.get("/", tourController.getAllTours);
 
