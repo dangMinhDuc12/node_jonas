@@ -6,6 +6,8 @@ const tourSchema = new Schema(
       type: String,
       required: [true, "A tour must have a name"], // String là message lỗi hiện ra khi không có trường này
       unique: true,
+      minlength: [10, "A tour must have at least 10 characters"],
+      maxlength: [40, "A tour must have max 40 characters"],
     },
     slug: String,
     duration: {
@@ -19,10 +21,16 @@ const tourSchema = new Schema(
     difficulty: {
       type: String,
       required: [true, "A tour must have a difficulty"],
+      enum: {
+        values: ["easy", "difficult", "medium"],
+        message: "Difficulty is either: easy, difficult, medium",
+      },
     },
     ratingsAverage: {
       type: Number,
       default: 4.5,
+      min: [1, "Rating at least is 1"],
+      max: [5, "Rating max is 5"],
     },
     ratingsQuantity: {
       type: Number,
@@ -32,7 +40,15 @@ const tourSchema = new Schema(
       type: Number,
       required: [true, "A tour must have a price"],
     },
-    priceDiscount: Number,
+    priceDiscount: {
+      type: Number,
+      validate: {
+        validator: function (val) {
+          return val < this.price;
+        },
+        message: "Discount ({VALUE}) greater than price",
+      },
+    },
     summary: {
       type: String,
       trim: true,
@@ -66,10 +82,29 @@ tourSchema.virtual("durationWeek").get(function () {
 });
 
 // Document middleware, pre với hook save được gọi trước khi thực hiện doc.save() hoặc Model.create()
-tourSchema.pre("save", function (next) {
-  this.slug = slugify(this.name, {
-    lower: true,
-  });
+// tourSchema.pre("save", function (next) {
+//   this.slug = slugify(this.name, {
+//     lower: true,
+//   });
+//   next();
+// });
+
+//Query middleware: Chạy trước và sau khi query
+// tourSchema.pre(/^find/, function (next) {
+//   console.log(this);
+//   this.start = Date.now();
+//   next();
+// });
+//
+// tourSchema.post(/^find/, function (docs, next) {
+//   console.log(this);
+//   console.log(`Time to query: ${Date.now() - this.start}`);
+//   next();
+// });
+
+//Aggregate middleware
+tourSchema.pre("aggregate", function (next) {
+  console.log(this.pipeline());
   next();
 });
 
