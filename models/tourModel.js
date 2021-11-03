@@ -102,10 +102,10 @@ tourSchema.virtual("durationWeek").get(function () {
 //   next();
 // });
 
-//Aggregate middleware
-tourSchema.pre("aggregate", function (next) {
-  console.log(this.pipeline());
-  next();
-});
+// //Aggregate middleware
+// tourSchema.pre("aggregate", function (next) {
+//   console.log(this.pipeline());
+//   next();
+// });
 
 module.exports = model("Tour", tourSchema);

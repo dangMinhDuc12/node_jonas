@@ -58,6 +58,6 @@ const DB = process.env.DATABASE.replace(
       console.log(`App run on ${port}`);
     });
   } catch (err) {
-    console.log(err);
+    console.log(err.name, err.message);
   }
 })();
