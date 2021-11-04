@@ -1,34 +1,13 @@
-module.exports.getAllUsers = (req, res, next) => {
-  res.status(500).json({
-    status: 'Error',
-    messgae: 'This route is not yet defined',
-  });
-};
+const User = require("../models/userModel");
+const catchAsync = require("../utils/catchAsync");
 
-module.exports.getUser = (req, res, next) => {
-  res.status(500).json({
-    status: 'Error',
-    messgae: 'This route is not yet defined',
+module.exports.getAllUsers = catchAsync(async (req, res, next) => {
+  const users = await User.find();
+  res.status(200).json({
+    status: "success",
+    results: users.length,
+    data: {
+      users,
+    },
   });
-};
-
-module.exports.createUser = (req, res, next) => {
-  res.status(500).json({
-    status: 'Error',
-    messgae: 'This route is not yet defined',
-  });
-};
-
-module.exports.updateUser = (req, res, next) => {
-  res.status(500).json({
-    status: 'Error',
-    messgae: 'This route is not yet defined',
-  });
-};
-
-module.exports.deleteUser = (req, res, next) => {
-  res.status(500).json({
-    status: 'Error',
-    messgae: 'This route is not yet defined',
-  });
-};
+});

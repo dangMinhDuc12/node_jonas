@@ -19,6 +19,7 @@ const userSchema = new Schema({
     type: String,
     required: [true, "Please add your password"],
     minlength: 8,
+    select: false,
   },
   passwordConfirm: {
     type: String,
@@ -33,12 +34,19 @@ const userSchema = new Schema({
 });
 
 userSchema.pre("save", async function (next) {
-  //hàm isModified kiểm tra nếu field truyền vào được thay đổi sẽ return true ngược lại là false
+  //hàm isModified kiểm tra nếu field truyền vào được thay đổi sẽ return true ngược lại là false, áp dụng với save và create
   if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
   next();
 });
+
+userSchema.methods.checkPassword = async function (
+  inputPassword,
+  userPassword
+) {
+  return await bcrypt.compare(inputPassword, userPassword);
+};
 
 module.exports = model("User", userSchema);
