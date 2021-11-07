@@ -15,6 +15,11 @@ const userSchema = new Schema({
     validate: [validator.isEmail, "Please add a valid email"],
   },
   photo: String,
+  role: {
+    type: String,
+    enum: ["user", "guide", "lead-guide", "admin"],
+    default: "user",
+  },
   password: {
     type: String,
     required: [true, "Please add your password"],
@@ -31,6 +36,7 @@ const userSchema = new Schema({
       message: "Password confirm not match with password",
     },
   },
+  passwordChangedAt: Date,
 });
 
 userSchema.pre("save", async function (next) {
@@ -47,6 +53,16 @@ userSchema.methods.checkPassword = async function (
   userPassword
 ) {
   return await bcrypt.compare(inputPassword, userPassword);
+};
+
+userSchema.methods.checkPasswordChange = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const passwordChangeAtTS = this.passwordChangedAt.getTime() / 1000;
+    return JWTTimestamp < passwordChangeAtTS;
+  }
+
+  //PW no changed
+  return false;
 };
 
 module.exports = model("User", userSchema);

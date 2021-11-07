@@ -15,6 +15,7 @@ const sendErrProd = (err, res) => {
       message: err.message,
     });
   } else {
+    console.log("error", err);
     res.status(500).json({
       status: "error",
       message: "Some thing went wrong",
@@ -40,6 +41,16 @@ const handleValid = (err) => {
   return new AppError(message, 400);
 };
 
+const handleJWTError = () => {
+  const message = "User doesn't exist. Please try login again";
+  return new AppError(message, 401);
+};
+
+const handleTokenExpiredErr = () => {
+  const message = "Token expired. Please login again";
+  return new AppError(message, 401);
+};
+
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
@@ -53,6 +64,10 @@ module.exports = (err, req, res, next) => {
       error = handleDupName(err);
     } else if (err.name === "ValidationError") {
       error = handleValid(err);
+    } else if (err.name === "JsonWebTokenError") {
+      error = handleJWTError();
+    } else if (err.name === "TokenExpiredError") {
+      error = handleTokenExpiredErr();
     }
     sendErrProd(error, res);
   }
