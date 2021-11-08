@@ -1,6 +1,7 @@
 const { Schema, model } = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 const userSchema = new Schema({
   name: {
@@ -37,14 +38,24 @@ const userSchema = new Schema({
     },
   },
   passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 
+//Encrypt pw before save
 userSchema.pre("save", async function (next) {
   //hàm isModified kiểm tra nếu field truyền vào được thay đổi sẽ return true ngược lại là false, áp dụng với save và create
   if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
+  next();
+});
+
+//Add field passwordChangedAt when change pw
+userSchema.pre("save", function (next) {
+  if (!this.isModified("password") || this.isNew) return next();
+  this.passwordChangedAt = Date.now() - 1000;
   next();
 });
 
@@ -63,6 +74,19 @@ userSchema.methods.checkPasswordChange = function (JWTTimestamp) {
 
   //PW no changed
   return false;
+};
+
+//Create reset token
+userSchema.methods.createResetPWToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  return resetToken;
 };
 
 module.exports = model("User", userSchema);
