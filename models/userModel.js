@@ -40,6 +40,11 @@ const userSchema = new Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 //Encrypt pw before save
@@ -56,6 +61,13 @@ userSchema.pre("save", async function (next) {
 userSchema.pre("save", function (next) {
   if (!this.isModified("password") || this.isNew) return next();
   this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
+//Quert middleware
+userSchema.pre(/^find/, function (next) {
+  //This tham chiếu đến Query object
+  this.find({ active: { $ne: false } });
   next();
 });
 

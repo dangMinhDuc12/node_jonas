@@ -16,6 +16,17 @@ const signToken = (id) => {
   );
 };
 
+const createResToken = (user, statusCode, res) => {
+  const token = signToken(user._id);
+  res.status(statusCode).json({
+    status: "success",
+    token,
+    data: {
+      user,
+    },
+  });
+};
+
 module.exports.signUp = catchAsync(async (req, res, next) => {
   const { name, email, password, passwordConfirm, passwordChangedAt, role } =
     req.body;
@@ -28,15 +39,8 @@ module.exports.signUp = catchAsync(async (req, res, next) => {
     role,
   });
 
-  const token = await signToken(newUser._id);
   await newUser.save();
-  res.status(201).json({
-    status: "success",
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+  createResToken(newUser, 201, res);
 });
 
 module.exports.login = catchAsync(async (req, res, next) => {
@@ -50,11 +54,7 @@ module.exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid email or password", 401));
   }
 
-  const token = await signToken(user._id);
-  res.status(200).json({
-    status: "success",
-    token,
-  });
+  createResToken(user, 200, res);
 });
 
 module.exports.protect = catchAsync(async (req, res, next) => {
@@ -170,9 +170,24 @@ module.exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   //Sign new token for user
-  const token = await signToken(user._id);
-  res.status(200).json({
-    status: "success",
-    token,
-  });
+  createResToken(user, 200, res);
+});
+
+//Update password
+module.exports.updatePassword = catchAsync(async (req, res, next) => {
+  //Check current password of user
+  const user = await User.findById(req.user._id).select("+password");
+  if (!(await user.checkPassword(req.body.passwordCurrent, user.password))) {
+    return next(
+      new AppError("Password current incorrect. Please try again", 401)
+    );
+  }
+
+  //Change PW
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
+
+  //Crete new token for user
+  createResToken(user, 200, res);
 });
