@@ -9,7 +9,12 @@ const userRouter = require("./routes/userRoutes");
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
 const app = express();
-
+const rateLimit = require("express-rate-limit");
+const limiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 100,
+  message: "Too many request from this IP",
+});
 //MIDDLEWARE
 dotenv.config({
   path: "./config.env",
@@ -24,6 +29,7 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 app.use(express.static(`${__dirname}/public`));
+app.use("/api", limiter);
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
