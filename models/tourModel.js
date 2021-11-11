@@ -1,5 +1,6 @@
 const { Schema, model } = require("mongoose");
 const slugify = require("slugify");
+// const User = require("./userModel");
 const tourSchema = new Schema(
   {
     name: {
@@ -69,6 +70,36 @@ const tourSchema = new Schema(
       select: false,
     },
     startDates: [Date],
+    startLocation: {
+      //GeoJSON in mongoose dùng để xác định toạ độ
+      type: {
+        type: String,
+        default: "Point",
+        enum: ["Point"],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: "Point",
+          enum: ["Point"],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
+    guides: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
@@ -89,13 +120,21 @@ tourSchema.virtual("durationWeek").get(function () {
 //   next();
 // });
 
-//Query middleware: Chạy trước và sau khi query
-// tourSchema.pre(/^find/, function (next) {
-//   console.log(this);
-//   this.start = Date.now();
+// tourSchema.pre("save", async function (next) {
+//   const guidesPromise = this.guides.map(async (id) => await User.findById(id));
+//   this.guides = await Promise.all(guidesPromise);
 //   next();
 // });
-//
+
+//Query middleware: Chạy trước và sau khi query
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "guides",
+    select: "-__v -passwordChangedAt",
+  });
+  next();
+});
+
 // tourSchema.post(/^find/, function (docs, next) {
 //   console.log(this);
 //   console.log(`Time to query: ${Date.now() - this.start}`);
