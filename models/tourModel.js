@@ -112,6 +112,13 @@ tourSchema.virtual("durationWeek").get(function () {
   return this.duration / 7;
 });
 
+//Virtual populate
+tourSchema.virtual("reviews", {
+  ref: "Review",
+  foreignField: "tour",
+  localField: "_id",
+});
+
 // Document middleware, pre với hook save được gọi trước khi thực hiện doc.save() hoặc Model.create()
 // tourSchema.pre("save", function (next) {
 //   this.slug = slugify(this.name, {
