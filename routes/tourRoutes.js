@@ -2,7 +2,10 @@ const express = require("express");
 const router = express.Router();
 const tourController = require("../controllers/tourController");
 const authController = require("../controllers/authController");
+const reviewRouter = require("../routes/reviewRoutes");
 
+// [NESTED ROUTES] /api/v1/tours/:tourId/reviews
+router.use("/:tourId/reviews", reviewRouter);
 // [POST] /api/v1/tours
 router.post("/", tourController.createTour);
 

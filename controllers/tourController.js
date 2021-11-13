@@ -1,76 +1,14 @@
 const Tour = require("../models/tourModel");
-const APIFeatures = require("../utils/apiFeatures");
+// const APIFeatures = require("../utils/apiFeatures");
 const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/appError");
+// const AppError = require("../utils/appError");
+const factory = require("../utils/handleFactory");
 
-module.exports.createTour = catchAsync(async (req, res, next) => {
-  const newTour = new Tour(req.body);
-  await newTour.save();
-  res.status(201).json({
-    status: "success",
-    data: {
-      tour: newTour,
-    },
-  });
-});
-
-module.exports.getAllTours = catchAsync(async (req, res, next) => {
-  console.log(req.query);
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-  const tours = await features.query;
-  res.status(200).json({
-    status: "success",
-    results: tours.length,
-    data: {
-      tours,
-    },
-  });
-});
-
-module.exports.getTour = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const tour = await Tour.findById(id).populate("reviews");
-  if (!tour) {
-    return next(new AppError("Cant not found tour with this ID", 404));
-  }
-  res.status(200).json({
-    status: "success",
-    data: {
-      tour,
-    },
-  });
-});
-
-module.exports.updateTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-  if (!tour) {
-    return next(new AppError("Cant not found tour with this ID", 404));
-  }
-  res.status(200).json({
-    status: "success",
-    data: {
-      tour,
-    },
-  });
-});
-
-module.exports.deleteTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
-  if (!tour) {
-    return next(new AppError("Cant not found tour with this ID", 404));
-  }
-  res.status(204).json({
-    status: "success",
-    data: null,
-  });
-});
+module.exports.createTour = factory.createOne(Tour);
+module.exports.getAllTours = factory.getAll(Tour);
+module.exports.updateTour = factory.updateOne(Tour);
+module.exports.deleteTour = factory.deleteOne(Tour);
+module.exports.getTour = factory.getOne(Tour, { path: "reviews" });
 
 module.exports.getTopTours = (req, res, next) => {
   req.query.limit = "5";

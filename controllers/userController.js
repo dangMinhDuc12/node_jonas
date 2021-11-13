@@ -1,7 +1,7 @@
 const User = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
-
+const factory = require("../utils/handleFactory");
 const filterAllowData = (obj, ...allowFields) => {
   return Object.keys(obj).reduce((acc, el) => {
     if (allowFields.includes(el)) acc[el] = obj[el];
@@ -9,16 +9,11 @@ const filterAllowData = (obj, ...allowFields) => {
   }, {});
 };
 
-module.exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
-  res.status(200).json({
-    status: "success",
-    results: users.length,
-    data: {
-      users,
-    },
-  });
-});
+module.exports.getAllUsers = factory.getAll(User);
+// Admin update user(not password)
+module.exports.updateUser = factory.updateOne(User);
+module.exports.deleteUser = factory.deleteOne(User);
+module.exports.getUser = factory.getOne(User);
 
 //User update profile
 module.exports.updateMe = catchAsync(async (req, res, next) => {

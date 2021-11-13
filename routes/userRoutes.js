@@ -3,7 +3,6 @@ const router = express.Router();
 
 const userController = require("../controllers/userController");
 const authController = require("../controllers/authController");
-const { route } = require("express/lib/router");
 
 // [POST] /api/v1/users/forgotpassword
 router.post("/forgotpassword", authController.forgotPassword);
@@ -29,6 +28,25 @@ router.post("/signup", authController.signUp);
 
 // [POST] /api/v1/users/login
 router.post("/login", authController.login);
+
+// [GET] /api/v1/users/:id
+router.get("/:id", userController.getUser);
+
+// [PATCH] /api/v1/users/login
+router.patch(
+  "/:id",
+  authController.protect,
+  authController.restrictTo("admin"),
+  userController.updateUser
+);
+
+// [DELETE] /api/v1/users/:id
+router.delete(
+  "/:id",
+  authController.protect,
+  authController.restrictTo("admin"),
+  userController.deleteUser
+);
 
 // [GET] /api/v1/users
 router.get("/", userController.getAllUsers);
