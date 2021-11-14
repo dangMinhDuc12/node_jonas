@@ -14,6 +14,14 @@ router.patch(
   authController.updatePassword
 );
 
+// [GET] /api/v1/users/me
+router.get(
+  "/me",
+  authController.protect,
+  userController.getMe,
+  userController.getUser
+);
+
 // [PATCH] /api/v1/users/updateMe
 router.patch("/updateMe", authController.protect, userController.updateMe);
 
@@ -30,9 +38,14 @@ router.post("/signup", authController.signUp);
 router.post("/login", authController.login);
 
 // [GET] /api/v1/users/:id
-router.get("/:id", userController.getUser);
+router.get(
+  "/:id",
+  authController.protect,
+  authController.restrictTo("admin"),
+  userController.getUser
+);
 
-// [PATCH] /api/v1/users/login
+// [PATCH] /api/v1/users/:id
 router.patch(
   "/:id",
   authController.protect,
@@ -49,6 +62,11 @@ router.delete(
 );
 
 // [GET] /api/v1/users
-router.get("/", userController.getAllUsers);
+router.get(
+  "/",
+  authController.protect,
+  authController.restrictTo("admin"),
+  userController.getAllUsers
+);
 
 module.exports = router;

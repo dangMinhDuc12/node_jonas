@@ -1,5 +1,5 @@
 const { Schema, model } = require("mongoose");
-
+const Tour = require("../models/tourModel");
 const reviewSchema = new Schema(
   {
     review: {
@@ -47,6 +47,55 @@ reviewSchema.pre(/^find/, function (next) {
     select: "name photo",
   });
   next();
+});
+
+// Tạo static method để tính toán rating trung bình và tổng số rating review
+
+reviewSchema.statics.calcRatings = async function (tourId) {
+  const stats = await this.aggregate([
+    {
+      $match: {
+        tour: tourId,
+      },
+    },
+    {
+      $group: {
+        _id: "$tour",
+        allRatings: {
+          $sum: 1,
+        },
+        ratingAvg: {
+          $avg: "$rating",
+        },
+      },
+    },
+  ]);
+  if (stats.length) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].allRatings,
+      ratingsAverage: stats[0].ratingAvg,
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5,
+    });
+  }
+};
+
+reviewSchema.post("save", function (doc, next) {
+  this.constructor.calcRatings(this.tour);
+  next();
+});
+
+// Xử lý khi update delete review
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+  this.reviewDoc = await this.findOne().clone(); // this ở đây trỏ tới query hiện tại nên phải execute nó để lấy đc document hiện tại
+  next();
+});
+
+reviewSchema.post(/^findOneAnd/, function () {
+  this.reviewDoc.constructor.calcRatings(this.reviewDoc.tour);
 });
 
 module.exports = model("Review", reviewSchema);

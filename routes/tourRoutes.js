@@ -7,16 +7,26 @@ const reviewRouter = require("../routes/reviewRoutes");
 // [NESTED ROUTES] /api/v1/tours/:tourId/reviews
 router.use("/:tourId/reviews", reviewRouter);
 // [POST] /api/v1/tours
-router.post("/", tourController.createTour);
+router.post(
+  "/",
+  authController.protect,
+  authController.restrictTo("admin", "lead-guide"),
+  tourController.createTour
+);
 
 // [GET] /api/v1/tours/monthly-plan/2021
-router.get("/monthly-plan/:year", tourController.getMonthlyPlan);
+router.get(
+  "/monthly-plan/:year",
+  authController.protect,
+  authController.restrictTo("admin", "lead-guide", "guide"),
+  tourController.getMonthlyPlan
+);
 
 // [GET] /api/v1/tours/tour-stats
 router.get("/tour-stats", tourController.getTourStats);
 
 // [GET] /api/v1/tours
-router.get("/", authController.protect, tourController.getAllTours);
+router.get("/", tourController.getAllTours);
 
 // [GET] /api/v1/tours/top-5-cheap
 router.get(
@@ -29,7 +39,12 @@ router.get(
 router.get("/:id", tourController.getTour);
 
 // [PATCH] /api/v1/tours/:id
-router.patch("/:id", tourController.updateTour);
+router.patch(
+  "/:id",
+  authController.protect,
+  authController.restrictTo("admin", "lead-guide"),
+  tourController.updateTour
+);
 
 //[DELETE] /api/v1/tours/:id
 router.delete(

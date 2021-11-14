@@ -50,3 +50,8 @@ module.exports.deleteMe = catchAsync(async (req, res, next) => {
     data: null,
   });
 });
+
+module.exports.getMe = (req, res, next) => {
+  req.params.id = req.user._id;
+  next();
+};

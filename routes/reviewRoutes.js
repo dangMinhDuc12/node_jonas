@@ -6,7 +6,7 @@ const authController = require("../controllers/authController");
 const reviewController = require("../controllers/reviewController");
 
 // [GET] /api/v1/reviews/:id  [NESTED ROUTES] /api/v1/tours/:tourId/reviews/:id
-router.get("/:id", reviewController.getReview);
+router.get("/:id", authController.protect, reviewController.getReview);
 
 // [PATCH] /api/v1/reviews/:id [NESTED ROUTES] /api/v1/tours/:tourId/reviews/:id
 router.patch(
@@ -25,7 +25,7 @@ router.delete(
 );
 
 // [GET] /api/v1/reviews [NESTED ROUTES] /api/v1/tours/:tourId/reviews
-router.get("/", reviewController.getAllReviews);
+router.get("/", authController.protect, reviewController.getAllReviews);
 
 // [POST] /api/v1/reviews [NESTED ROUTES] /api/v1/tours/:tourId/reviews
 router.post(
