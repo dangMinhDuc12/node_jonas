@@ -32,6 +32,7 @@ const tourSchema = new Schema(
       default: 4.5,
       min: [1, "Rating at least is 1"],
       max: [5, "Rating max is 5"],
+      set: (val) => Math.round(val * 10) / 10,
     },
     ratingsQuantity: {
       type: Number,
@@ -106,6 +107,9 @@ const tourSchema = new Schema(
     toObject: { virtuals: true }, //Khai báo để có thể sử dụng virtual
   }
 );
+
+//Tạo index để query toạ độ địa lý
+tourSchema.index({ startLocation: "2dsphere" });
 
 //Virtual tạo 1 field trong dữ liệu trả về mà không cần phải khai báo trong Schema define. Field này có tác dụng kết hợp các field trong data lại với nhau.
 tourSchema.virtual("durationWeek").get(function () {

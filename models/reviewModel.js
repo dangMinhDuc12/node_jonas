@@ -33,6 +33,9 @@ const reviewSchema = new Schema(
   }
 );
 
+//Ngăn không cho user bình luận 2 review trên 1 tour
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
+
 reviewSchema.pre(/^find/, function (next) {
   // this.populate({
   //   path: "tour",
@@ -95,6 +98,7 @@ reviewSchema.pre(/^findOneAnd/, async function (next) {
 });
 
 reviewSchema.post(/^findOneAnd/, function () {
+  //ko thể gọi findOne vì query đã đc thực hiện xong khi vào middleware này
   this.reviewDoc.constructor.calcRatings(this.reviewDoc.tour);
 });
 

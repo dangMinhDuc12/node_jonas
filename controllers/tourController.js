@@ -1,7 +1,7 @@
 const Tour = require("../models/tourModel");
 // const APIFeatures = require("../utils/apiFeatures");
 const catchAsync = require("../utils/catchAsync");
-// const AppError = require("../utils/appError");
+const AppError = require("../utils/appError");
 const factory = require("../utils/handleFactory");
 
 module.exports.createTour = factory.createOne(Tour);
@@ -90,6 +90,82 @@ module.exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
     status: "success",
     data: {
       plan,
+    },
+  });
+});
+
+// Query Địa lý (tìm các địa điểm cách địa điểm chỉ định 1 khoảng cách nhất định)
+module.exports.getToursWithin = catchAsync(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(",");
+  const earthRadiusMiles = 3963.2;
+  const earthRadiusKm = 6378.1;
+  //Quy đổi ra radius từ mi hoặc km (mi là dặm, 1 dặm khoảng 1.6km)
+  const radius =
+    unit === "mi" ? distance / earthRadiusMiles : distance / earthRadiusKm;
+
+  if (!lat || !lng) {
+    return next(
+      new AppError(
+        "Please provide latitude and longitude with format lat,lng",
+        400
+      )
+    );
+  }
+  // Query theo toán tử địa lý của mongodb
+  const tours = await Tour.find({
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+  });
+
+  res.status(200).json({
+    status: "success",
+    results: tours.length,
+    data: {
+      data: tours,
+    },
+  });
+});
+
+// Tìm khoảng cách của tất cả các tours đến 1 điểm chỉ định
+module.exports.getDistances = catchAsync(async (req, res, next) => {
+  const { latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(",");
+  const meterToMi = 0.000621371;
+  const merterToKm = 0.001;
+
+  const multiplier = unit === "mi" ? meterToMi : merterToKm;
+  if (!lat || !lng) {
+    return next(
+      new AppError(
+        "Please provide latitude and longitude with format lat,lng",
+        400
+      )
+    );
+  }
+
+  const distances = await Tour.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: "Point",
+          coordinates: [Number(lng), Number(lat)],
+        },
+        distanceField: "distance",
+        distanceMultiplier: multiplier,
+      },
+    },
+    {
+      $project: {
+        distance: 1,
+        name: 1,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      data: distances,
     },
   });
 });

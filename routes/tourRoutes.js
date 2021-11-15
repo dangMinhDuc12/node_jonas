@@ -4,6 +4,15 @@ const tourController = require("../controllers/tourController");
 const authController = require("../controllers/authController");
 const reviewRouter = require("../routes/reviewRoutes");
 
+// [GET] /api/v1/tours/tours-within/:distance/center/:latlng/unit/:unit
+router.get(
+  "/tours-within/:distance/center/:latlng/unit/:unit",
+  tourController.getToursWithin
+);
+
+// [GET] /api/v1/tours/distances/:latlng/unit/:unit
+router.get("/distances/:latlng/unit/:unit", tourController.getDistances);
+
 // [NESTED ROUTES] /api/v1/tours/:tourId/reviews
 router.use("/:tourId/reviews", reviewRouter);
 // [POST] /api/v1/tours
