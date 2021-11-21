@@ -21,3 +21,9 @@ module.exports.getTour = catchAsync(async (req, res, next) => {
     tour,
   });
 });
+
+module.exports.login = (req, res, next) => {
+  res.status(200).render("login", {
+    title: "Login pages",
+  });
+};

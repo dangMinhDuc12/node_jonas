@@ -5,6 +5,7 @@ const multer = require("multer");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const cookieParser = require("cookie-parser");
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
 const reviewRouter = require("./routes/reviewRoutes");
@@ -27,6 +28,7 @@ dotenv.config({
 app.use(express.json()); //parsing application/json
 app.use(express.urlencoded({ extended: true })); //parsing application/xwww-form-urlencoded
 app.use(multer().array()); //parsing multipart/form-data
+app.use(cookieParser());
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
@@ -37,6 +39,11 @@ app.set("views", path.join(__dirname, "views"));
 app.use("/api", limiter);
 
 //ROUTES
+
+app.use((req, res, next) => {
+  console.log(req.cookies.jwt);
+  next();
+});
 
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
