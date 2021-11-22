@@ -107,6 +107,29 @@ module.exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
+module.exports.isLoggedIn = catchAsync(async (req, res, next) => {
+  //Check token in header
+  if (req.cookies.jwt) {
+    const jwtPromise = promisify(jwt.verify);
+    const decoded = await jwtPromise(req.cookies.jwt, process.env.JWT_SECRET);
+
+    //Check User Exist
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) {
+      return next();
+    }
+
+    //Check password change
+    if (currentUser.checkPasswordChange(decoded.iat)) {
+      return next();
+    }
+    //Logged in user
+    res.locals.user = currentUser;
+    return next();
+  }
+  next();
+});
+
 //Check permission
 module.exports.restrictTo = (...roles) => {
   return (req, res, next) => {

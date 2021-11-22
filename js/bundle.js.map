@@ -1,0 +1,1 @@
+{"mappings":"AAAA,OAAO,CAAC,GAAG,CAAC,CAAK","sources":["public/js/index.js"],"sourcesContent":["console.log(\"abc\");\n"],"names":[],"version":3,"file":"bundle.js.map","sourceRoot":"../"}
