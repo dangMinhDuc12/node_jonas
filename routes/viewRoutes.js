@@ -3,6 +3,8 @@ const viewController = require("../controllers/viewController");
 const authController = require("../controllers/authController");
 const router = express.Router();
 
+router.get("/me", authController.protect, viewController.getMe);
+
 router.use(authController.isLoggedIn);
 
 router.get("/tour/:slug", viewController.getTour);

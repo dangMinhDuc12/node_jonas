@@ -34,6 +34,9 @@ router.patch("/resetPassword/:token", authController.resetPassword);
 // [POST] /api/v1/users/signup
 router.post("/signup", authController.signUp);
 
+// [GET] /api/v1/users/logout
+router.get("/logout", authController.logOut);
+
 // [POST] /api/v1/users/login
 router.post("/login", authController.login);
 

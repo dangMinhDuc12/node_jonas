@@ -1,26 +1,48 @@
 const AppError = require("../utils/appError");
 
-const sendErrDev = (err, res) => {
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-    error: err,
+const sendErrDev = (err, req, res) => {
+  // API
+  if (req.originalUrl.includes("api")) {
+    return res.status(err.statusCode).json({
+      status: err.status,
+      message: err.message,
+      error: err,
+    });
+  }
+
+  //RENDERED WEBSITE
+  return res.status(err.statusCode).render("error", {
+    title: "Something went wrong",
+    msg: err.message,
   });
 };
 
-const sendErrProd = (err, res) => {
-  if (err.isOperational) {
-    res.status(err.statusCode).json({
-      status: err.status,
-      message: err.message,
-    });
-  } else {
-    console.log("error", err);
-    res.status(500).json({
+const sendErrProd = (err, req, res) => {
+  // API
+  if (req.originalUrl.includes("api")) {
+    if (err.isOperational) {
+      return res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message,
+      });
+    }
+    return res.status(500).json({
       status: "error",
       message: "Some thing went wrong",
     });
   }
+
+  //RENDERED WEBSITE
+  if (err.isOperational) {
+    return res.status(err.statusCode).render("error", {
+      title: "Some thing went wrong",
+      msg: err.message,
+    });
+  }
+  return res.status(500).render("error", {
+    title: "Some thing went wrong",
+    msg: "Please try again later",
+  });
 };
 
 const handleCastErrDB = (err) => {
@@ -55,7 +77,7 @@ module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
   if (process.env.NODE_ENV === "development") {
-    sendErrDev(err, res);
+    sendErrDev(err, req, res);
   } else if (process.env.NODE_ENV === "production") {
     let error = { ...err };
     if (err.name === "CastError") {
@@ -69,6 +91,6 @@ module.exports = (err, req, res, next) => {
     } else if (err.name === "TokenExpiredError") {
       error = handleTokenExpiredErr();
     }
-    sendErrProd(error, res);
+    sendErrProd(error, req, res);
   }
 };
