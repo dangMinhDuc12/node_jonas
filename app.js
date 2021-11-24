@@ -1,7 +1,6 @@
 //IMPORT
 const express = require("express");
 const path = require("path");
-const multer = require("multer");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
@@ -27,7 +26,6 @@ dotenv.config({
 //CONFIG + MIDDLEWARE
 app.use(express.json()); //parsing application/json
 app.use(express.urlencoded({ extended: true })); //parsing application/xwww-form-urlencoded
-app.use(multer().array()); //parsing multipart/form-data
 app.use(cookieParser());
 
 if (process.env.NODE_ENV === "development") {
@@ -40,10 +38,10 @@ app.use("/api", limiter);
 
 //ROUTES
 
-app.use((req, res, next) => {
-  console.log(req.cookies.jwt);
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log(req.cookies.jwt);
+//   next();
+// });
 
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);

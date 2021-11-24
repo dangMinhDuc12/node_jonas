@@ -17,6 +17,7 @@ module.exports.getUser = factory.getOne(User);
 
 //User update profile
 module.exports.updateMe = catchAsync(async (req, res, next) => {
+  console.log(req.file);
   //Prevent user change password in this route
   const { password, passwordConfirm } = req.body;
   if (password || passwordConfirm) {
