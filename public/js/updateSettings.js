@@ -34,12 +34,14 @@ const formUpdatePw = document.querySelector(".form-user-settings");
 formUpdateUser.addEventListener("submit", async (e) => {
   e.preventDefault();
   document.querySelector(".btn-save-settings").textContent = "Updating...";
-  const email = document.querySelector("#email").value;
-  const name = document.querySelector("#name").value;
-  await updateSettings("data", {
-    email,
-    name,
-  });
+
+  //Định dạng giống form data có thể up ảnh
+  const form = new FormData();
+  form.append("name", document.querySelector("#name").value);
+  form.append("email", document.querySelector("#email").value);
+  form.append("photo", document.querySelector("#photo").files[0]);
+
+  await updateSettings("data", form);
   document.querySelector(".btn-save-settings").textContent = "Save settings";
 });
 
