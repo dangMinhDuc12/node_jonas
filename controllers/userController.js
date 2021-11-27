@@ -4,6 +4,7 @@ const AppError = require("../utils/appError");
 const factory = require("../utils/handleFactory");
 const multer = require("multer");
 const sharp = require("sharp");
+const deleteFile = require("../utils/deleteFile");
 
 // const multerStorage = multer.diskStorage({
 //   destination(req, file, cb) {
@@ -37,7 +38,7 @@ const filterAllowData = (obj, ...allowFields) => {
 
 module.exports.uploadUserPhoto = upload.single("photo");
 
-module.exports.resizeImg = async (req, res, next) => {
+module.exports.resizeImg = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
   req.file.filename = `user-${req.user._id}-${Date.now()}.jpeg`;
 
@@ -48,7 +49,7 @@ module.exports.resizeImg = async (req, res, next) => {
     .toFile(`public/img/users/${req.file.filename}`);
 
   next();
-};
+});
 
 module.exports.getAllUsers = factory.getAll(User);
 // Admin update user(not password)
@@ -68,10 +69,13 @@ module.exports.updateMe = catchAsync(async (req, res, next) => {
       )
     );
   }
-
   //Filter data change
   const dataUpdate = filterAllowData(req.body, "email", "name");
-  if (req.file) dataUpdate.photo = req.file.filename;
+  const currentUser = await User.findById(req.user._id);
+  if (req.file) {
+    dataUpdate.photo = req.file.filename;
+    deleteFile("users", currentUser.photo);
+  }
 
   const updatedUser = await User.findByIdAndUpdate(req.user._id, dataUpdate, {
     new: true,

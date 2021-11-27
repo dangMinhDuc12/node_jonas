@@ -22,6 +22,9 @@ async function updateSettings(type, data) {
       data,
     });
     showAlert("success", `${type.toUpperCase()} update successfully`);
+    if (type === "data" && data.get("photo") !== "undefined") {
+      window.location.reload();
+    }
   } catch (err) {
     console.log(err.response);
     showAlert("error", err.response.data.message);
