@@ -1,3 +1,5 @@
+//DOC: https://docs.mapbox.com/mapbox-gl-js/guides/
+
 const locations = JSON.parse(document.querySelector("#map").dataset.locations);
 
 mapboxgl.accessToken =

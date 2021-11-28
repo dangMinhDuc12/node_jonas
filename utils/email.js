@@ -11,7 +11,15 @@ module.exports = class Email {
 
   createTransport() {
     if (process.env.NODE_ENV === "production") {
-      return 1;
+      return nodemailer.createTransport({
+        host: process.env.GMAIL_HOST,
+        port: process.env.GMAIL_PORT,
+        secure: false,
+        auth: {
+          user: process.env.GMAIL_USER,
+          pass: process.env.GMAIL_PASSWORD,
+        },
+      });
     }
 
     return nodemailer.createTransport({
@@ -50,5 +58,9 @@ module.exports = class Email {
 
   async sendWelcome() {
     await this.send("welcome", "Welcome to natours website");
+  }
+
+  async sendResetPassword() {
+    await this.send("passwordReset", "Email to reset password");
   }
 };

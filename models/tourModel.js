@@ -124,12 +124,12 @@ tourSchema.virtual("reviews", {
 });
 
 // Document middleware, pre với hook save được gọi trước khi thực hiện doc.save() hoặc Model.create()
-// tourSchema.pre("save", function (next) {
-//   this.slug = slugify(this.name, {
-//     lower: true,
-//   });
-//   next();
-// });
+tourSchema.pre("save", function (next) {
+  this.slug = slugify(this.name, {
+    lower: true,
+  });
+  next();
+});
 
 // tourSchema.pre("save", async function (next) {
 //   const guidesPromise = this.guides.map(async (id) => await User.findById(id));

@@ -51,7 +51,6 @@ module.exports.signUp = catchAsync(async (req, res, next) => {
 
   await newUser.save();
   const url = `${req.protocol}://${req.get("host")}/me`;
-  console.log(url);
   await new Email(newUser, url).sendWelcome();
   createResToken(newUser, 201, res);
 });
@@ -177,13 +176,8 @@ module.exports.forgotPassword = catchAsync(async (req, res, next) => {
     "host"
   )}/api/v1/users/resetPassword/${resetToken}`;
 
-  const message = `Forgot your password, click the link ${resetURL} and type your new password. If you didn't forget your password, please ignore this email`;
   try {
-    await sendMail({
-      to: user.email,
-      subject: "Your password reset token (valid for 10min)",
-      message,
-    });
+    await new Email(user, resetURL).sendResetPassword();
 
     res.status(200).json({
       status: "success",
