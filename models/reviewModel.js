@@ -28,8 +28,8 @@ const reviewSchema = new Schema(
   },
   {
     toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-    id: false, //Khai báo để có thể sử dụng virtual
+    toObject: { virtuals: true }, //Khai báo để có thể sử dụng virtual
+    id: false,
   }
 );
 
