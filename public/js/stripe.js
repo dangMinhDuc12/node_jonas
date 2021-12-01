@@ -23,7 +23,7 @@ const bookTour = async (tourId) => {
   //get session stripe from server
   try {
     const session = await axios.get(
-      `http://localhost:3000/api/v1/bookings/checkout-session/${tourId}`
+      `/api/v1/bookings/checkout-session/${tourId}`
     );
 
     //create form to charge

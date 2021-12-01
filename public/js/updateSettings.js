@@ -13,8 +13,8 @@ function showAlert(type, msg) {
 async function updateSettings(type, data) {
   const url =
     type === "password"
-      ? "http://localhost:3000/api/v1/users/updatePassword"
-      : "http://localhost:3000/api/v1/users/updateMe";
+      ? "/api/v1/users/updatePassword"
+      : "/api/v1/users/updateMe";
   try {
     const updatedUser = await axios({
       method: "PATCH",
